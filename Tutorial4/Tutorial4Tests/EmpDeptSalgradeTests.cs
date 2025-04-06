@@ -1,7 +1,14 @@
 ﻿using Tutorial3.Models;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 
 public class EmpDeptSalgradeTests
-{
+{   
+    ITestOutputHelper _testOutputHelper;
+    public EmpDeptSalgradeTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
     // 1. Simple WHERE filter
     // SQL: SELECT * FROM Emp WHERE Job = 'SALESMAN';
     [Fact]
@@ -13,6 +20,10 @@ public class EmpDeptSalgradeTests
 
         Assert.Equal(2, result.Count);
         Assert.All(result, e => Assert.Equal("SALESMAN", e.Job));
+        foreach (var i in result)
+        {
+            _testOutputHelper.WriteLine(i.ToString());
+        }
     }
 
     // 2. WHERE + OrderBy
@@ -26,6 +37,11 @@ public class EmpDeptSalgradeTests
 
         Assert.Equal(2, result.Count);
         Assert.True(result[0].Sal >= result[1].Sal);
+
+        foreach (var i in result)
+        {
+            _testOutputHelper.WriteLine(i.ToString());
+        }
     }
 
     // 3. Subquery using LINQ (IN clause)
@@ -39,6 +55,11 @@ public class EmpDeptSalgradeTests
         List<Emp> result = emps.Where(e => depts.Any(d => d.Loc == "CHICAGO" && e.DeptNo == d.DeptNo)).ToList();
 
         Assert.All(result, e => Assert.Equal(30, e.DeptNo));
+
+        foreach (var v in result)
+        {
+           _testOutputHelper.WriteLine(v.ToString()); 
+        }
     }
 
     // 4. SELECT projection
@@ -55,6 +76,11 @@ public class EmpDeptSalgradeTests
             Assert.False(string.IsNullOrWhiteSpace(r.EName));
             Assert.True(r.Sal > 0);
         });
+
+        foreach (var v in result)
+        {
+            _testOutputHelper.WriteLine(v.ToString());
+        }
     }
 
     // 5. JOIN Emp to Dept
@@ -68,6 +94,11 @@ public class EmpDeptSalgradeTests
         var result = emps.Join(depts, e => e.DeptNo, d => d.DeptNo, (e, d) => new { e.EName, d.DName }).ToList();
 
         Assert.Contains(result, r => r.DName == "SALES" && r.EName == "ALLEN");
+
+        foreach (var v in result)
+        {
+            _testOutputHelper.WriteLine(v.ToString());
+        }
     }
 
     // 6. Group by DeptNo
@@ -81,6 +112,10 @@ public class EmpDeptSalgradeTests
             .ToList();
 
         Assert.Contains(result, g => g.DeptNo == 30 && g.Count == 2);
+        foreach (var v in result)
+        {
+            _testOutputHelper.WriteLine(v.ToString());
+        }
     }
 
     // 7. SelectMany (simulate flattening)
@@ -93,6 +128,10 @@ public class EmpDeptSalgradeTests
         var result = emps.Where(e => e.Comm != null).Select(g => new { g.EName, g.Comm }).ToList();
 
         Assert.All(result, r => Assert.NotNull(r.Comm));
+        foreach (var v in result)
+        {
+            _testOutputHelper.WriteLine(v.ToString());
+        }
     }
 
     // 8. Join with Salgrade
@@ -109,6 +148,10 @@ public class EmpDeptSalgradeTests
             select new { e.EName, s.Grade };
 
         Assert.Contains(result, r => r.EName == "ALLEN" && r.Grade == 3);
+        foreach (var v in result)
+        {
+            _testOutputHelper.WriteLine(v.ToString());
+        }
     }
 
     // 9. Aggregation (AVG)
@@ -122,6 +165,11 @@ public class EmpDeptSalgradeTests
             .Select(group => new { DeptNo = group.Key, AvgSal = group.Average(s => s.Sal) }).ToList();
 
         Assert.Contains(result, r => r.DeptNo == 30 && r.AvgSal > 1000);
+        
+        foreach (var v in result)
+        {
+            _testOutputHelper.WriteLine(v.ToString());
+        }
     }
 
     // 10. Complex filter with subquery and join
@@ -135,5 +183,10 @@ public class EmpDeptSalgradeTests
             .Select(e => e.EName).ToList();
 
         Assert.Contains("ALLEN", result);
+        
+        foreach (var v in result)
+        {
+            _testOutputHelper.WriteLine(v.ToString());
+        }
     }
 }

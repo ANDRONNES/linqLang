@@ -10,4 +10,8 @@ public class Emp
     public decimal Sal { get; set; }
     public decimal? Comm { get; set; }
     public int DeptNo { get; set; }
+    public override string ToString()
+    {
+        return $"Name: {EName}, Salary: {Sal}, DeptNo: {DeptNo}, Job: {Job}, Manager: {Mgr}, HireDate: {HireDate.ToShortDateString()}, Comm: {Comm}";
+    }
 }

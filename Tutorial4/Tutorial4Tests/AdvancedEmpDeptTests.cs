@@ -1,7 +1,16 @@
+using Xunit.Abstractions;
+
 namespace Tutorial3Tests;
 
 public class AdvancedEmpDeptTests
 {
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public AdvancedEmpDeptTests(ITestOutputHelper testOutputHelper)
+    {
+        _testOutputHelper = testOutputHelper;
+    }
+
     // 11. MAX salary
     // SQL: SELECT MAX(Sal) FROM Emp;
     [Fact]
@@ -12,6 +21,7 @@ public class AdvancedEmpDeptTests
         decimal? maxSalary = emps.Max(e => e.Sal);
 
         Assert.Equal(5000, maxSalary);
+        _testOutputHelper.WriteLine(maxSalary.ToString());
     }
 
     // 12. MIN salary in department 30
@@ -24,6 +34,7 @@ public class AdvancedEmpDeptTests
         decimal? minSalary = emps.Where(e => e.DeptNo == 30).Min(e => e.Sal);
 
         Assert.Equal(1250, minSalary);
+        _testOutputHelper.WriteLine(minSalary.ToString());
     }
 
     // 13. Take first 2 employees ordered by hire date
@@ -37,6 +48,8 @@ public class AdvancedEmpDeptTests
 
         Assert.Equal(2, firstTwo.Count);
         Assert.True(firstTwo[0].HireDate <= firstTwo[1].HireDate);
+        foreach (var emp in firstTwo) _testOutputHelper.WriteLine(emp.HireDate.ToString());
+        
     }
 
     // 14. DISTINCT job titles
@@ -50,6 +63,7 @@ public class AdvancedEmpDeptTests
 
         Assert.Contains("PRESIDENT", jobs);
         Assert.Contains("SALESMAN", jobs);
+        foreach( var i in jobs) _testOutputHelper.WriteLine(i);
     }
 
     // 15. Employees with managers (NOT NULL Mgr)
@@ -62,6 +76,8 @@ public class AdvancedEmpDeptTests
         var withMgr = emps.Where(e => e.Mgr != null).ToList();
 
         Assert.All(withMgr, e => Assert.NotNull(e.Mgr));
+        
+        foreach( var i in withMgr) _testOutputHelper.WriteLine(i.Mgr.ToString());
     }
 
     // 16. All employees earn more than 500
@@ -74,6 +90,12 @@ public class AdvancedEmpDeptTests
         var result = emps.Where(e => e.Sal > 500).ToList();
 
         Assert.True(result.All(e => e.Sal > 500));
+
+        foreach (var emp in result)
+        {
+            _testOutputHelper.WriteLine(emp.ToString());  //ADDED toString method in EMP!!
+        }
+        
     }
 
     // 17. Any employee with commission over 400
@@ -86,6 +108,11 @@ public class AdvancedEmpDeptTests
         var result = emps.Where(e => e.Comm > 400).ToList();
 
         Assert.True(result.All(e => e.Comm > 400));
+
+        foreach (var emp in result)
+        {
+            _testOutputHelper.WriteLine(emp.ToString());
+        }
     }
 
     // 18. Self-join to get employee-manager pairs
@@ -96,9 +123,11 @@ public class AdvancedEmpDeptTests
         var emps = Database.GetEmps();
 
         var result = emps.Join(emps, e1 => e1.Mgr, e2 => e2.EmpNo,
-            (e1, e2) => new { Emp = e1.EName, Manager = e2.EName });
+            (e1, e2) => new { Employee = e1.EName, Manager = e2.EName }).ToList();
 
-        Assert.Contains(result, r => r.Emp == "SMITH" && r.Manager == "FORD");
+        Assert.Contains(result, r => r.Employee == "SMITH" && r.Manager == "FORD");
+        
+        foreach (var emp in result) _testOutputHelper.WriteLine(emp.ToString());
     }
 
     // 19. Let clause usage (sal + comm)
@@ -111,6 +140,8 @@ public class AdvancedEmpDeptTests
         var result = emps.Select(e => new { e.EName, Total = e.Sal + (e.Comm ?? 0) }).ToList();
 
         Assert.Contains(result, r => r.EName == "ALLEN" && r.Total == 1900);
+        
+        foreach (var emp in result) _testOutputHelper.WriteLine(emp.ToString());
     }
 
     // 20. Join all three: Emp → Dept → Salgrade
@@ -129,5 +160,7 @@ public class AdvancedEmpDeptTests
             select new { e.EName, d.DName, s.Grade };
 
         Assert.Contains(result, r => r.EName == "ALLEN" && r.DName == "SALES" && r.Grade == 3);
+        
+        foreach (var emp in result) _testOutputHelper.WriteLine(emp.ToString());
     }
 }
